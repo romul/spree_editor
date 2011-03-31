@@ -176,10 +176,8 @@
                 _button.addClass('toggleEditor');
                                                                       
                 var state = 'on';
-                                                                                        
                 var myEditor = window[id + '_editor'];
-                myEditor.show();
-                                                                                                                            
+
                 _button.on('click', function(ev) {
                     Event.stopEvent(ev);   
                     if (state == 'on') {
