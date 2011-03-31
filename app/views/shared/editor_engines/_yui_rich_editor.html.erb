@@ -29,7 +29,7 @@
         var ids = [<%= ids.map{|id| "'#{id}'"}.join(', ') %>];
         $.each(ids, function(index, id) {
             if ($('textarea#' + id)) {
-                window[id + '_editor'] = new YAHOO.widget.Editor(id, {
+                newEditor = new YAHOO.widget.Editor(id, {
                     height: '350px',
                     width: 'auto',
                     animate: true,
@@ -128,7 +128,7 @@
                     }
                 });
 
-                window[id + '_editor'].addListener('editorContentLoaded', function() {
+                newEditor.addListener('editorContentLoaded', function() {
                     $(".yui-toolbar-imageUpload").upload({
                         name: 'content_image[attachment]',
                         action: '/content_images',
@@ -140,7 +140,7 @@
                         },
                         onComplete: function(image_src) {
                             var img_html = "<img src='" + image_src + "'/>";
-                            window[id + '_editor'].execCommand('inserthtml', img_html);
+                            newEditor.execCommand('inserthtml', img_html);
                             $(".editor-mask-container").removeClass("active");
                         }
                     });
@@ -160,13 +160,13 @@
                             $(".editor-mask-container").removeClass("active");
                             var file_name = prompt('<%= t("editor.enter_file_name") %>', file_name_original);
                             var link_html = "<a href='" + file_url + "'/>" + file_name + "</a>";
-                            window[id + '_editor'].execCommand('inserthtml', link_html);
+                            newEditor.execCommand('inserthtml', link_html);
                         }
                     });
                 });
 
-                window[id + '_editor'].render();
-                window[id + '_editor'].show();
+                newEditor.render();
+                newEditor.show();
 
                 // Add Toggle Button for plain text view
                 var Dom = YAHOO.util.Dom,        
@@ -176,22 +176,21 @@
                 _button.addClass('toggleEditor');
                                                                       
                 var state = 'on';
-                var myEditor = window[id + '_editor'];
 
                 _button.on('click', function(ev) {
                     Event.stopEvent(ev);   
                     if (state == 'on') {
                         state = 'off';   
-                        myEditor.saveHTML();  
+                        newEditor.saveHTML();  
                         var stripHTML = /<\S[^><]*>/g;   
-                        myEditor.get('textarea').value = myEditor.get('textarea').value.replace(/<br>/gi, '\n').replace(stripHTML, '');
+                        newEditor.get('textarea').value = newEditor.get('textarea').value.replace(/<br>/gi, '\n').replace(stripHTML, '');
                         
-                        var fc = myEditor.get('element').previousSibling,        
-                            el = myEditor.get('element');
+                        var fc = newEditor.get('element').previousSibling,        
+                            el = newEditor.get('element');
                         Dom.setStyle(fc, 'position', 'absolute');   
                         Dom.setStyle(fc, 'top', '-9999px');   
                         Dom.setStyle(fc, 'left', '-9999px');   
-                        myEditor.get('element_cont').removeClass('yui-editor-container');   
+                        newEditor.get('element_cont').removeClass('yui-editor-container');   
                         Dom.setStyle(el, 'visibility', 'visible');   
                         Dom.setStyle(el, 'top', '');   
                         Dom.setStyle(el, 'left', '');   
@@ -199,8 +198,8 @@
                     } else {       
                         state = 'on';   
 
-                        var fc = myEditor.get('element').previousSibling,        
-                        el = myEditor.get('element');   
+                        var fc = newEditor.get('element').previousSibling,        
+                        el = newEditor.get('element');   
                         Dom.setStyle(fc, 'position', 'static');   
                         Dom.setStyle(fc, 'top', '0');   
                         Dom.setStyle(fc, 'left', '0');   
@@ -208,9 +207,9 @@
                         Dom.setStyle(el, 'top', '-9999px');   
                         Dom.setStyle(el, 'left', '-9999px');   
                         Dom.setStyle(el, 'position', 'absolute');   
-                        myEditor.get('element_cont').addClass('yui-editor-container');   
-                        myEditor._setDesignMode('on');   
-                        myEditor.setEditorHTML(myEditor.get('textarea').value.replace(/\n/g, '<br>'));   
+                        newEditor.get('element_cont').addClass('yui-editor-container');   
+                        newEditor._setDesignMode('on');   
+                        newEditor.setEditorHTML(newEditor.get('textarea').value.replace(/\n/g, '<br>'));   
                     }        
                 });
                 // End Toggle Button
