@@ -28,6 +28,8 @@
         var myConfig = { dompath: true };
         var ids = [<%= ids.map{|id| "'#{id}'"}.join(', ') %>];
         $.each(ids, function(index, id) {
+            //  Used for dup show() method to fix file/image upload buttons not initializing properly
+            var editorInitialized = false;
             if ($('textarea#' + id)) {
                 newEditor = new YAHOO.widget.Editor(id, {
                     height: '350px',
@@ -163,55 +165,60 @@
                             newEditor.execCommand('inserthtml', link_html);
                         }
                     });
+                    if( editorInitialized == false) {
+                        newEditor.show();
+                        editorInitialized = true;
+                    }
                 });
 
                 newEditor.render();
-                newEditor.show();
 
                 // Add Toggle Button for plain text view
-                var Dom = YAHOO.util.Dom,        
-                Event = YAHOO.util.Event;
+                if( document.getElementById(id + '_toggleEditor') != undefined ) {
+                  var Dom = YAHOO.util.Dom,        
+                  Event = YAHOO.util.Event;
                                   
-                var _button = new YAHOO.widget.Button(id + '_toggleEditor');   
-                _button.addClass('toggleEditor');
+                  var _button = new YAHOO.widget.Button(id + '_toggleEditor');   
+                  _button.addClass('toggleEditor');
                                                                       
-                var state = 'on';
+                  var state = 'on';
 
-                _button.on('click', function(ev) {
-                    Event.stopEvent(ev);   
-                    if (state == 'on') {
-                        state = 'off';   
-                        newEditor.saveHTML();  
-                        var stripHTML = /<\S[^><]*>/g;   
-                        newEditor.get('textarea').value = newEditor.get('textarea').value.replace(/<br>/gi, '\n').replace(stripHTML, '');
+                  _button.on('click', function(ev) {
+                      Event.stopEvent(ev);   
+                      if (state == 'on') {
+                          state = 'off';   
+                          newEditor.saveHTML();  
+                          var stripHTML = /<\S[^><]*>/g;   
+                          newEditor.get('textarea').value = newEditor.get('textarea').value.replace(/<br>/gi, '\n').replace(stripHTML, '');
                         
-                        var fc = newEditor.get('element').previousSibling,        
-                            el = newEditor.get('element');
-                        Dom.setStyle(fc, 'position', 'absolute');   
-                        Dom.setStyle(fc, 'top', '-9999px');   
-                        Dom.setStyle(fc, 'left', '-9999px');   
-                        newEditor.get('element_cont').removeClass('yui-editor-container');   
-                        Dom.setStyle(el, 'visibility', 'visible');   
-                        Dom.setStyle(el, 'top', '');   
-                        Dom.setStyle(el, 'left', '');   
-                        Dom.setStyle(el, 'position', 'static');   
-                    } else {       
-                        state = 'on';   
+                          var fc = newEditor.get('element').previousSibling,        
+                              el = newEditor.get('element');
+                          Dom.setStyle(fc, 'position', 'absolute');   
+                          Dom.setStyle(fc, 'top', '-9999px');   
+                          Dom.setStyle(fc, 'left', '-9999px');   
+                          newEditor.get('element_cont').removeClass('yui-editor-container');   
+                          Dom.setStyle(el, 'visibility', 'visible');   
+                          Dom.setStyle(el, 'top', '');   
+                          Dom.setStyle(el, 'left', '');   
+                          Dom.setStyle(el, 'position', 'static');   
+                      } else {       
+                          state = 'on';   
 
-                        var fc = newEditor.get('element').previousSibling,        
-                        el = newEditor.get('element');   
-                        Dom.setStyle(fc, 'position', 'static');   
-                        Dom.setStyle(fc, 'top', '0');   
-                        Dom.setStyle(fc, 'left', '0');   
-                        Dom.setStyle(el, 'visibility', 'hidden');   
-                        Dom.setStyle(el, 'top', '-9999px');   
-                        Dom.setStyle(el, 'left', '-9999px');   
-                        Dom.setStyle(el, 'position', 'absolute');   
-                        newEditor.get('element_cont').addClass('yui-editor-container');   
-                        newEditor._setDesignMode('on');   
-                        newEditor.setEditorHTML(newEditor.get('textarea').value.replace(/\n/g, '<br>'));   
-                    }        
-                });
+                          var fc = newEditor.get('element').previousSibling,        
+                          el = newEditor.get('element');   
+                          Dom.setStyle(fc, 'position', 'static');   
+                          Dom.setStyle(fc, 'top', '0');   
+                          Dom.setStyle(fc, 'left', '0');   
+                          Dom.setStyle(el, 'visibility', 'hidden');   
+                          Dom.setStyle(el, 'top', '-9999px');   
+                          Dom.setStyle(el, 'left', '-9999px');   
+                          Dom.setStyle(el, 'position', 'absolute');   
+                          newEditor.get('element_cont').addClass('yui-editor-container');   
+                          newEditor._setDesignMode('on');   
+                          newEditor.setEditorHTML(newEditor.get('textarea').value.replace(/\n/g, '<br>'));   
+                      }        
+                  });
+                }
                 // End Toggle Button
             }
         });
