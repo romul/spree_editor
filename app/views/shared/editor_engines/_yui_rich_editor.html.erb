@@ -166,6 +166,56 @@
                 });
 
                 window[id + '_editor'].render();
+                window[id + '_editor'].show();
+
+                // Add Toggle Button for plain text view
+                var Dom = YAHOO.util.Dom,        
+                Event = YAHOO.util.Event;
+                                  
+                var _button = new YAHOO.widget.Button(id + 'toggleEditor');   
+                _button.addClass('toggleEditor');
+                                                                      
+                var state = 'on';
+                                                                                        
+                var myEditor = window[id + '_editor'];
+                myEditor.show();
+                                                                                                                            
+                _button.on('click', function(ev) {
+                    Event.stopEvent(ev);   
+                    if (state == 'on') {
+                        state = 'off';   
+                        myEditor.saveHTML();  
+                        var stripHTML = /<\S[^><]*>/g;   
+                        myEditor.get('textarea').value = myEditor.get('textarea').value.replace(/<br>/gi, '\n').replace(stripHTML, '');
+                        
+                        var fc = myEditor.get('element').previousSibling,        
+                            el = myEditor.get('element');
+                        Dom.setStyle(fc, 'position', 'absolute');   
+                        Dom.setStyle(fc, 'top', '-9999px');   
+                        Dom.setStyle(fc, 'left', '-9999px');   
+                        myEditor.get('element_cont').removeClass('yui-editor-container');   
+                        Dom.setStyle(el, 'visibility', 'visible');   
+                        Dom.setStyle(el, 'top', '');   
+                        Dom.setStyle(el, 'left', '');   
+                        Dom.setStyle(el, 'position', 'static');   
+                    } else {       
+                        state = 'on';   
+
+                        var fc = myEditor.get('element').previousSibling,        
+                        el = myEditor.get('element');   
+                        Dom.setStyle(fc, 'position', 'static');   
+                        Dom.setStyle(fc, 'top', '0');   
+                        Dom.setStyle(fc, 'left', '0');   
+                        Dom.setStyle(el, 'visibility', 'hidden');   
+                        Dom.setStyle(el, 'top', '-9999px');   
+                        Dom.setStyle(el, 'left', '-9999px');   
+                        Dom.setStyle(el, 'position', 'absolute');   
+                        myEditor.get('element_cont').addClass('yui-editor-container');   
+                        myEditor._setDesignMode('on');   
+                        myEditor.setEditorHTML(myEditor.get('textarea').value.replace(/\n/g, '<br>'));   
+                    }        
+                });
+                // End Toggle Button
             }
         });
     });
