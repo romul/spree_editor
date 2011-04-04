@@ -31,7 +31,7 @@
             //  Used for dup show() method to fix file/image upload buttons not initializing properly
             var editorInitialized = false;
             if ($('textarea#' + id)) {
-                newEditor = new YAHOO.widget.Editor(id, {
+                newEditor = window[id + '_editor'] = new YAHOO.widget.Editor(id, {
                     height: '350px',
                     width: 'auto',
                     animate: true,
@@ -131,6 +131,7 @@
                 });
 
                 newEditor.addListener('editorContentLoaded', function() {
+                    newEditor = window[id + '_editor'];
                     $(".yui-toolbar-imageUpload").upload({
                         name: 'content_image[attachment]',
                         action: '/content_images',
@@ -166,7 +167,8 @@
                         }
                     });
                     if( editorInitialized == false) {
-                        newEditor.show();
+                        if( newEditor.getEditorHTML() != "" )
+                            newEditor.show();
                         editorInitialized = true;
                     }
                 });
@@ -177,6 +179,8 @@
                 if( document.getElementById(id + '_toggleEditor') != undefined ) {
                   var Dom = YAHOO.util.Dom,        
                   Event = YAHOO.util.Event;
+
+                  newEditor = window[id + '_editor'];
                                   
                   var _button = new YAHOO.widget.Button(id + '_toggleEditor');   
                   _button.addClass('toggleEditor');
@@ -188,8 +192,8 @@
                       if (state == 'on') {
                           state = 'off';   
                           newEditor.saveHTML();  
-                          var stripHTML = /<\S[^><]*>/g;   
-                          newEditor.get('textarea').value = newEditor.get('textarea').value.replace(/<br>/gi, '\n').replace(stripHTML, '');
+                          //var stripHTML = /<\S[^><]*>/g;   
+                          //newEditor.get('textarea').value = newEditor.get('textarea').value.replace(/<br>/gi, '\n').replace(stripHTML, '');
                         
                           var fc = newEditor.get('element').previousSibling,        
                               el = newEditor.get('element');
@@ -215,7 +219,7 @@
                           Dom.setStyle(el, 'position', 'absolute');   
                           newEditor.get('element_cont').addClass('yui-editor-container');   
                           newEditor._setDesignMode('on');   
-                          newEditor.setEditorHTML(newEditor.get('textarea').value.replace(/\n/g, '<br>'));   
+                          newEditor.setEditorHTML(newEditor.get('textarea').value);   
                       }        
                   });
                 }
