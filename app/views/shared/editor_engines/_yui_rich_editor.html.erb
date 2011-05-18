@@ -28,8 +28,10 @@
         var myConfig = { dompath: true };
         var ids = [<%= ids.map{|id| "'#{id}'"}.join(', ') %>];
         $.each(ids, function(index, id) {
+            //  Used for dup show() method to fix file/image upload buttons not initializing properly
+            var editorInitialized = false;
             if ($('textarea#' + id)) {
-                window[id + '_editor'] = new YAHOO.widget.Editor(id, {
+                newEditor = window[id + '_editor'] = new YAHOO.widget.Editor(id, {
                     height: '350px',
                     width: 'auto',
                     animate: true,
@@ -128,7 +130,8 @@
                     }
                 });
 
-                window[id + '_editor'].addListener('editorContentLoaded', function() {
+                newEditor.addListener('editorContentLoaded', function() {
+                    newEditor = window[id + '_editor'];
                     $(".yui-toolbar-imageUpload").upload({
                         name: 'content_image[attachment]',
                         action: '/content_images',
@@ -140,7 +143,7 @@
                         },
                         onComplete: function(image_src) {
                             var img_html = "<img src='" + image_src + "'/>";
-                            window[id + '_editor'].execCommand('inserthtml', img_html);
+                            newEditor.execCommand('inserthtml', img_html);
                             $(".editor-mask-container").removeClass("active");
                         }
                     });
@@ -160,12 +163,67 @@
                             $(".editor-mask-container").removeClass("active");
                             var file_name = prompt('<%= t("editor.enter_file_name") %>', file_name_original);
                             var link_html = "<a href='" + file_url + "'/>" + file_name + "</a>";
-                            window[id + '_editor'].execCommand('inserthtml', link_html);
+                            newEditor.execCommand('inserthtml', link_html);
                         }
                     });
+                    if( editorInitialized == false) {
+                        if( newEditor.getEditorHTML() != "" )
+                            newEditor.show();
+                        editorInitialized = true;
+                    }
                 });
 
-                window[id + '_editor'].render();
+                newEditor.render();
+
+                // Add Toggle Button for plain text view
+                if( document.getElementById(id + '_toggleEditor') != undefined ) {
+                  var Dom = YAHOO.util.Dom,        
+                  Event = YAHOO.util.Event;
+
+                  newEditor = window[id + '_editor'];
+                                  
+                  var _button = new YAHOO.widget.Button(id + '_toggleEditor');   
+                  _button.addClass('toggleEditor');
+                                                                      
+                  var state = 'on';
+
+                  _button.on('click', function(ev) {
+                      Event.stopEvent(ev);   
+                      if (state == 'on') {
+                          state = 'off';   
+                          newEditor.saveHTML();  
+                          //var stripHTML = /<\S[^><]*>/g;   
+                          //newEditor.get('textarea').value = newEditor.get('textarea').value.replace(/<br>/gi, '\n').replace(stripHTML, '');
+                        
+                          var fc = newEditor.get('element').previousSibling,        
+                              el = newEditor.get('element');
+                          Dom.setStyle(fc, 'position', 'absolute');   
+                          Dom.setStyle(fc, 'top', '-9999px');   
+                          Dom.setStyle(fc, 'left', '-9999px');   
+                          newEditor.get('element_cont').removeClass('yui-editor-container');   
+                          Dom.setStyle(el, 'visibility', 'visible');   
+                          Dom.setStyle(el, 'top', '');   
+                          Dom.setStyle(el, 'left', '');   
+                          Dom.setStyle(el, 'position', 'static');   
+                      } else {       
+                          state = 'on';   
+
+                          var fc = newEditor.get('element').previousSibling,        
+                          el = newEditor.get('element');   
+                          Dom.setStyle(fc, 'position', 'static');   
+                          Dom.setStyle(fc, 'top', '0');   
+                          Dom.setStyle(fc, 'left', '0');   
+                          Dom.setStyle(el, 'visibility', 'hidden');   
+                          Dom.setStyle(el, 'top', '-9999px');   
+                          Dom.setStyle(el, 'left', '-9999px');   
+                          Dom.setStyle(el, 'position', 'absolute');   
+                          newEditor.get('element_cont').addClass('yui-editor-container');   
+                          newEditor._setDesignMode('on');   
+                          newEditor.setEditorHTML(newEditor.get('textarea').value);   
+                      }        
+                  });
+                }
+                // End Toggle Button
             }
         });
     });
