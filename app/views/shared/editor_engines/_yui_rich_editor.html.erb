@@ -28,11 +28,16 @@
         var Dom = YAHOO.util.Dom,
   	        Event = YAHOO.util.Event;
         var myConfig = { dompath: true };
-        var ids = [<%= ids.map{|id| "'#{id}'"}.join(', ') %>];
-        $.each(ids, function(index, id) {
-            if ($('textarea#' + id).length) {
+        var ids = [<%= ids.map{|id| "'#{id}'"}.join(', ') %>]
+            $('textarea').filter(function() {
+                for (var i = 0; i < ids.length; i++) {
+                    if(this.name.match('^'+ids[i])) return true;
+                }
+                return false;
+            }).each(function() {
                 var state = 'off';
-                var newEditor = window[id + '_editor'] = new YAHOO.widget.Editor(id, {
+
+                var newEditor = window[this.id + '_editor'] = new YAHOO.widget.Editor(this.id, {
                     height: '350px',
                     width: 'auto',
                     animate: true,
@@ -219,7 +224,6 @@
           	        }, this, true);
                 }, newEditor, true);
                 newEditor.render();
-            }
         });
     });
 </script>
