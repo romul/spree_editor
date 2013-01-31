@@ -28,7 +28,7 @@
         var Dom = YAHOO.util.Dom,
   	        Event = YAHOO.util.Event;
         var myConfig = { dompath: true };
-        var ids = [<%= ids.map{|id| "'#{id}'"}.join(', ') %>];
+        var ids = [<%= raw ids.map{|id| "'#{id}'"}.join(', ') %>];
         $.each(ids, function(index, id) {
             if ($('textarea#' + id).length) {
                 var state = 'off';
